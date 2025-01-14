@@ -20,8 +20,7 @@ jobs:
 
       - name: Download source
         run: |
-          downloadTag fragoi/meson-installer v${version} \
-            meson-installer_${version}.tar.gz
+          downloadTag fragoi/meson-installer v${version}
 
       - name: Build source package
         uses: fragoi/debuild-action@main
