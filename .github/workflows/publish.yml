@@ -1,0 +1,32 @@
+name: Publish package
+
+on:
+  repository_dispatch:
+    types:
+      - new_version
+  workflow_dispatch:
+
+env:
+  PPA: ppa:fragoi/test
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      version: ${{ github.event.client_payload.version }}
+    steps:
+      - uses: fragoi/bash-actions@main
+
+      - name: Download source
+        run: |
+          downloadTag fragoi/meson-installer v${version} \
+            meson-installer_${version}.tar.gz
+
+      - name: Build source package
+        uses: fragoi/debuild-action@main
+        with:
+          ppa: ${{ env.PPA }}
+
+      - name: List files
+        run: ls -la
