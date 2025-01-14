@@ -27,5 +27,11 @@ jobs:
         with:
           ppa: ${{ env.PPA }}
 
-      - name: List files
-        run: ls -la
+      - name: Upload source package
+        uses: fragoi/debsign-action@main
+        with:
+          ppa: ${{ env.PPA }}
+          gpg_key: ${{ secrets.GPG_KEY }}
+          gpg_pass: ${{ secrets.GPG_PASS }}
+          ssh_key: ${{ secrets.SSH_KEY }}
+          ssh_pass: ${{ secrets.SSH_PASS }}
