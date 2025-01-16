@@ -4,7 +4,6 @@ on:
   repository_dispatch:
     types:
       - new_version
-  workflow_dispatch:
 
 env:
   PPA: ppa:fragoi/test
@@ -18,9 +17,20 @@ jobs:
     steps:
       - uses: fragoi/bash-actions@main
 
-      - name: Download source
+      - name: Create upstream package
         run: |
-          downloadTag fragoi/meson-installer v${version}
+          upver=$(debUpver $version)
+
+          dir="meson-installer-${upver}"
+          arc="meson-installer_${upver}.orig.tar.gz"
+
+          pip download -d "${dir}/packages" meson=="${upver}"
+          tar -czvf "$arc" "$dir"
+
+      - name: Download packaging info
+        run: |
+          downloadTag fragoi/meson-installer v${version} \
+            meson-installer_${version}.debian.tar.gz
 
       - name: Build source package
         uses: fragoi/debuild-action@main
