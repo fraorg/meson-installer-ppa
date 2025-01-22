@@ -25,7 +25,7 @@ jobs:
           arc="meson-installer_${upver}.orig.tar.gz"
 
           pip download -d "${dir}/packages" meson=="${upver}"
-          tar -czvf "$arc" "$dir"
+          tar -cavf "$arc" "$dir"
 
       - name: Download packaging info
         run: |
