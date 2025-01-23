@@ -7,6 +7,7 @@ on:
 
 env:
   PPA: ppa:fragoi/test
+  DEBUILD_OPTS: ''
 
 jobs:
 
@@ -15,17 +16,13 @@ jobs:
     env:
       version: ${{ github.event.client_payload.version }}
     steps:
+      - uses: actions/checkout@v3
       - uses: fragoi/bash-actions@main
 
-      - name: Create upstream package
+      - name: Provide upstream package
         run: |
-          upver=$(debUpver $version)
-
-          dir="meson-installer-${upver}"
-          arc="meson-installer_${upver}.orig.tar.gz"
-
-          pip download -d "${dir}/packages" meson=="${upver}"
-          tar -cavf "$arc" "$dir"
+          ./bin/provideUpstream meson-installer ${version} \
+            || stepExport DEBUILD_OPTS='-sa'
 
       - name: Download packaging info
         run: |
@@ -36,6 +33,7 @@ jobs:
         uses: fragoi/debuild-action@main
         with:
           ppa: ${{ env.PPA }}
+          options: ${{ env.DEBUILD_OPTS }}
 
       - name: Upload source package
         uses: fragoi/debsign-action@main

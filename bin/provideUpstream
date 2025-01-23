@@ -1,0 +1,47 @@
+#!/bin/bash -e
+
+PPA=${PPA:?'PPA must be defined'}
+
+PPA_URL='https://ppa.launchpadcontent.net'
+PPA_DIST='ubuntu'
+PPA_POOL='main'
+
+package=$1
+version=$2
+
+[ "$package" ] && [ "$version" ] || {
+  echo 1>&2 "Usage: $0 <package> <version>"
+  exit 2
+}
+
+rev=$(debRev "$version")
+upver=$(debUpver "$version")
+
+createPackage() {
+  local dir="${package}-${upver}"
+  local arc="${package}_${upver}.orig.tar.gz"
+
+  pip download -d "${dir}/packages" meson=="${upver}"
+  tar -cavf "$arc" "$dir"
+}
+
+downloadPackage() {
+  local ppa=${PPA#'ppa:'}
+  local sub=${package:0:1}
+  local arc="${package}_${upver}.orig.tar.gz"
+  local url="${PPA_URL}/${ppa}/${PPA_DIST}/pool/${PPA_POOL}/${sub}/${package}/${arc}"
+
+  curl -fLOJ "$url"
+}
+
+if [ "$rev" = '1' ]; then
+  echo "Creating package for first revision"
+  createPackage
+else
+  echo "Downloading package..."
+  if ! downloadPackage; then
+    echo "Package download failed, creating package"
+    createPackage
+    exit 1
+  fi
+fi
