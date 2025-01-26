@@ -14,20 +14,20 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     env:
-      version: ${{ github.event.client_payload.version }}
+      VERSION: ${{ github.event.client_payload.version }}
     steps:
       - uses: actions/checkout@v3
       - uses: fragoi/bash-actions@main
 
       - name: Provide upstream package
         run: |
-          ./bin/provideUpstream meson-installer ${version} \
+          ./bin/provideUpstream meson-installer ${VERSION} \
             || stepExport DEBUILD_OPTS='-sa'
 
       - name: Download packaging info
         run: |
-          downloadTag fragoi/meson-installer v${version} \
-            meson-installer_${version}.debian.tar.gz
+          downloadTag fragoi/meson-installer v${VERSION} \
+            meson-installer_${VERSION}.debian.tar.gz
 
       - name: Build source package
         uses: fragoi/debuild-action@main
