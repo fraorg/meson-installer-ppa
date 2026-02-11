@@ -17,7 +17,7 @@ jobs:
       VERSION: ${{ github.event.client_payload.version }}
     steps:
       - uses: actions/checkout@v3
-      - uses: fragoi/bash-actions@main
+      - uses: fragoi/bash-actions@v2
 
       - name: Provide upstream package
         run: |
