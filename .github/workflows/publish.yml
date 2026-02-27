@@ -5,6 +5,11 @@ on:
     types:
       - new_version
 
+run-name: >
+  meson-installer
+  (${{ github.event.client_payload.version }})
+  ${{ github.event.client_payload.dist }}
+
 env:
   PPA: ppa:fragoi/test
   VERSION: ${{ github.event.client_payload.version }}
