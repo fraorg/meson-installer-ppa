@@ -7,16 +7,18 @@ on:
 
 env:
   PPA: ppa:fragoi/test
-  DEBUILD_OPTS: ''
+  VERSION: ${{ github.event.client_payload.version }}
+  DIST: ${{ github.event.client_payload.dist }}
+  DISTREV: ${{ github.event.client_payload.distrev }}
 
 jobs:
 
   publish:
     runs-on: ubuntu-latest
     env:
-      VERSION: ${{ github.event.client_payload.version }}
+      DEBUILD_OPTS:
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: fragoi/bash-actions@v2
 
       - name: Provide upstream package
@@ -29,14 +31,20 @@ jobs:
           downloadTag fragoi/meson-installer v${VERSION} \
             meson-installer_${VERSION}.debian.tar.gz
 
+      - name: Set distribution
+        uses: fragoi/debdist-action@v1
+        with:
+          dist: ${{ env.DIST }}
+          distrev: ${{ env.DISTREV }}
+
       - name: Build source package
-        uses: fragoi/debuild-action@main
+        uses: fragoi/debuild-action@v24.0
         with:
           ppa: ${{ env.PPA }}
           options: ${{ env.DEBUILD_OPTS }}
 
       - name: Upload source package
-        uses: fragoi/debsign-action@main
+        uses: fragoi/debsign-action@v1
         with:
           ppa: ${{ env.PPA }}
           gpg_key: ${{ secrets.GPG_KEY }}
