@@ -20,9 +20,25 @@ upver=$(debUpver "$version")
 createPackage() {
   local dir="${package}-${upver}"
   local arc="${package}_${upver}.orig.tar.gz"
+  local date
 
   pip download -d "${dir}/packages" meson=="${upver}"
-  tar -cavf "$arc" "$dir"
+
+  date=$(getCreationDate)
+  date=$(date --date="$date" '+%F %T')
+
+  tar -cavf "$arc" --mtime="$date" "$dir"
+}
+
+getCreationDate() {
+  local host="https://files.pythonhosted.org"
+  local name="meson"
+  ## url format from https://docs.pypi.org/api/#predictable-urls
+  local url="${host}/packages/source/${name:0:1}/${name}/${name}-${upver}.tar.gz"
+
+  curl -fLIs "$url" \
+    | grep -i '^last-modified: ' \
+    | sed 's/^last-modified: //i'
 }
 
 downloadPackage() {
